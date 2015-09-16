@@ -1,0 +1,32 @@
+<!doctype html>
+
+<div id=pasteItems></div>
+
+<script type="text/javascript">
+function sendPasteRequest(id) {
+  var req = new XMLHttpRequest();
+  req.open("POST", "/v1/json/paste");
+  req.setRequestHeader("Content-Type", "application/json");
+  req.send(id);
+}
+
+function renderPasteItem(item) {
+  container = document.getElementById("pasteItems")
+  view = document.createElement("div")
+  view.innerHTML = item.value
+  view.onclick = function() {
+    sendPasteRequest(item.id)
+  }
+  container.appendChild(view)
+}
+
+var req = new XMLHttpRequest();
+req.addEventListener("load", function() {
+  var responseJson = JSON.parse(this.responseText)
+  for (var i = 0; i < responseJson.length; i++) {
+    renderPasteItem(responseJson[i])
+  }
+});
+req.open("GET", "/v1/json/list");
+req.send();
+</script>
