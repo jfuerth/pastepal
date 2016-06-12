@@ -1,4 +1,6 @@
 <!doctype html>
+<script src="sockjs-0.3.4.js"></script>
+<script src="stomp.js"></script>
 
 <div id=pasteItems></div>
 
@@ -26,7 +28,18 @@ req.addEventListener("load", function() {
   for (var i = 0; i < responseJson.length; i++) {
     renderPasteItem(responseJson[i])
   }
-});
+
+    var ws = new SockJS("/updates")
+    var stompClient = Stomp.over(ws)
+    stompClient.connect({}, function(frame) {
+      stompClient.subscribe("/topic/pasteItemUpdate", function(message) {
+        var responseJson = JSON.parse(message.body)
+        renderPasteItem(responseJson)
+      })
+    })
+})
+
 req.open("GET", "/v1/json/list");
 req.send();
+
 </script>
